@@ -21,13 +21,11 @@ def main():
                                                         random_state=21,
                                                         stratify=y)
 
-    # ---- Baseline model ----
     most_common_class = y_train.mode()[0]
     y_pred_baseline = np.full_like(y_test, fill_value=most_common_class)
 
     baseline_acc = accuracy_score(y_test, y_pred_baseline)
 
-    # ---- KNN model (default parameters) ----
     knn = KNeighborsClassifier(n_neighbors=11,
                                weights="distance",
                                p=1,
@@ -36,7 +34,6 @@ def main():
     y_pred_knn = knn.predict(X_test)
     knn_acc = accuracy_score(y_test, y_pred_knn)
 
-    # ---- Print results ----
     print(f"Most common class (baseline prediction): {most_common_class}")
     print(f"Baseline accuracy: {baseline_acc:.4f}")
     print(f"KNN accuracy: {knn_acc:.4f}")
