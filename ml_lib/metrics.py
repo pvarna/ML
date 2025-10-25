@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from typing import List
+from math import sqrt
 
 
 def accuracy_score(y_true: pd.Series,
@@ -23,3 +25,27 @@ def manhattan_distance(x: np.ndarray, y: np.ndarray) -> float:
         raise RuntimeError("Points have different dimensions")
     
     return np.sum(np.abs(x - y))
+
+def r2_score(y_true: List[float], y_pred: List[float]) -> float:
+    if len(y_true) != len(y_pred):
+        raise RuntimeError(
+            "Sizes of correct and predicted labels are different")
+    
+    mean_y = sum(y_true) / len(y_true)
+    numerator = sum((y_t - y_p) ** 2 for y_t, y_p in zip(y_true, y_pred))
+    denominator = sum((y - mean_y) ** 2 for y in y_true)
+
+    if abs(denominator) < 0.00001:
+        return 0.0
+    
+    return 1 - numerator / denominator
+
+def root_mean_squared_error(y_true: List[float], y_pred: List[float]) -> float:
+    if len(y_true) != len(y_pred):
+        raise RuntimeError(
+            "Sizes of correct and predicted labels are different")
+    
+    n = len(y_true)
+    mse = sum((y_t - y_p) ** 2 for y_t, y_p in zip(y_true, y_pred)) / n
+
+    return sqrt(mse)
