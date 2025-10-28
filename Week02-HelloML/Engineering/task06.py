@@ -28,43 +28,5 @@ def main():
 
     print(f"KNN accuracy: {knn_acc:.4f}")
 
-    ks = list(range(1, 51, 1))
-    train_accuracies = {}
-    test_accuracies = {}
-
-    best_k = None
-    best_test_acc = -1.0
-
-    for k in ks:
-        print("Testing with k = {k}")
-        knn = KNeighborsClassifier(n_neighbors=k, metric="manhattan")
-        knn.fit(X_train, y_train)
-
-        y_train_pred = knn.predict(X_train)
-        y_test_pred = knn.predict(X_test)
-
-        train_acc = accuracy_score(y_train, y_train_pred)
-        test_acc = accuracy_score(y_test, y_test_pred)
-
-        train_accuracies[k] = train_acc
-        test_accuracies[k] = test_acc
-
-        if test_acc >= best_test_acc:
-            best_k = k
-            best_test_acc = test_acc
-
-    print(f"Best k by test accuracy: {best_k}  |  Test acc: {best_test_acc:.4f}  |  Train acc: {train_accuracies[best_k]:.4f}")
-
-    plt.figure(figsize=(8, 6))
-    plt.title('KNN: Varying K (K-Nearest neigbors)')
-    plt.plot(ks, [train_accuracies[p] for p in ks], label='Training Accuracy')
-    plt.plot(ks, [test_accuracies[p] for p in ks], label='Testing Accuracy')
-    plt.legend()
-    plt.xlabel('K (K-Nearest neigbors)')
-    plt.ylabel('Accuracy')
-    plt.tight_layout()
-    plt.show()
-
-
 if __name__ == '__main__':
     main()

@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from collections import Counter
 
 from ml_lib.metrics import euclidean_distance, manhattan_distance, accuracy_score
 
@@ -35,7 +36,7 @@ class KNeighborsClassifier:
                 axis=1)
         else:
             distances = self.X_train.apply(
-                lambda row: euclidean_distance(row.to_numpy(), x.to_numpy()),
+                lambda row: manhattan_distance(row.to_numpy(), x.to_numpy()),
                 axis=1)
         return distances.to_numpy()
 
@@ -50,8 +51,8 @@ class KNeighborsClassifier:
             nearest_indices = np.argsort(distances)[:self.n_neighbors]
             nearest_labels = self.y_train.iloc[nearest_indices]
 
-            values, counts = np.unique(nearest_labels, return_counts=True)
-            majority_label = values[np.argmax(counts)]
+            label_counts = Counter(nearest_labels)
+            majority_label = label_counts.most_common(1)[0][0]
             predictions.append(majority_label)
 
         return pd.Series(predictions, index=X.index)
