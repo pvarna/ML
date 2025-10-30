@@ -5,6 +5,8 @@ import pandas as pd
 from metrics import accuracy_score
 from metrics import euclidean_distance
 from metrics import manhattan_distance
+from metrics import r2_score
+from metrics import root_mean_squared_error
 
 
 class TestAccuracyScore(unittest.TestCase):
@@ -91,6 +93,101 @@ class TestManhattanDistance(unittest.TestCase):
 
         # Assert
         self.assertEqual(actual, expected)
+
+
+class TestR2Score(unittest.TestCase):
+
+    def test_when_sizes_differ_then_throws_runtime_error(self):
+        # Arrange
+        y_true = pd.Series([1.0, 2.0, 3.0])
+        y_pred = pd.Series([1.0, 2.0])
+
+        # Act & Assert
+        with self.assertRaises(RuntimeError):
+            _ = r2_score(y_true, y_pred)
+
+    def test_when_perfect_prediction_then_returns_one(self):
+        # Arrange
+        y_true = [1.0, 2.0, 3.0]
+        y_pred = [1.0, 2.0, 3.0]
+        expected = 1.0
+
+        # Act
+        actual = r2_score(y_true, y_pred)
+
+        # Assert
+        self.assertEqual(actual, expected)
+
+    def test_when_constant_y_true_then_returns_zero(self):
+        # Arrange
+        y_true = [5.0, 5.0, 5.0, 5.0]  # zero variance
+        y_pred = [4.0, 6.0, 5.0, 5.0]
+        expected = 0.0  # per implementation
+
+        # Act
+        actual = r2_score(y_true, y_pred)
+
+        # Assert
+        self.assertEqual(actual, expected)
+
+    def test_when_known_values_then_correct_score(self):
+        # Arrange
+        y_true = [1.0, 2.0, 3.0]
+        y_pred = [1.0, 2.0, 2.0]  # SSE=1, SST=2 => R2=0.5
+        expected = 0.5
+
+        # Act
+        actual = r2_score(y_true, y_pred)
+
+        # Assert
+        self.assertAlmostEqual(actual, expected, places=7)
+
+    def test_when_bad_model_then_negative_r2(self):
+        # Arrange
+        y_true = [0.0, 1.0]
+        y_pred = [10.0, 10.0]
+
+        # Act
+        actual = r2_score(y_true, y_pred)
+
+        # Assert
+        self.assertLess(actual, 0.0)
+
+
+class TestRootMeanSquaredError(unittest.TestCase):
+
+    def test_when_sizes_differ_then_throws_runtime_error(self):
+        # Arrange
+        y_true = pd.Series([1.0, 2.0, 3.0])
+        y_pred = pd.Series([1.0, 2.0])
+
+        # Act & Assert
+        with self.assertRaises(RuntimeError):
+            _ = root_mean_squared_error(y_true, y_pred)
+
+    def test_when_perfect_prediction_then_zero(self):
+        # Arrange
+        y_true = [1.0, 2.0, 3.0]
+        y_pred = [1.0, 2.0, 3.0]
+        expected = 0.0
+
+        # Act
+        actual = root_mean_squared_error(y_true, y_pred)
+
+        # Assert
+        self.assertEqual(actual, expected)
+
+    def test_when_known_values_then_correct_rmse(self):
+        # Arrange
+        y_true = [1.0, 2.0, 3.0]
+        y_pred = [1.0, 4.0, 2.0]
+        expected = 1.290994449
+
+        # Act
+        actual = root_mean_squared_error(y_true, y_pred)
+
+        # Assert
+        self.assertAlmostEqual(actual, expected, places=7)
 
 
 if __name__ == "__main__":

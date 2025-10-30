@@ -60,7 +60,7 @@ class TestKNeighborsClassifierFitPredict(unittest.TestCase):
         actual = knn.predict(X_test)
 
         # Assert
-        self.assertTrue(actual.equals(expected))
+        pd.testing.assert_series_equal(actual, expected, check_dtype=False)
 
     def test_when_k_is_3_then_majority_vote_is_used(self):
         # Arrange
@@ -73,7 +73,7 @@ class TestKNeighborsClassifierFitPredict(unittest.TestCase):
         actual = knn.predict(X_test)
 
         # Assert
-        self.assertTrue(actual.equals(expected))
+        pd.testing.assert_series_equal(actual, expected, check_dtype=False)
 
     def test_when_scoring_then_returns_accuracy_between_0_and_1(self):
         # Arrange

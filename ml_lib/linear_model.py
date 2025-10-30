@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from ml_lib.metrics import r2_score, root_mean_squared_error
+from metrics import r2_score, root_mean_squared_error
 
 class LinearRegression:
     def __init__(self):
