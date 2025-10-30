@@ -13,3 +13,5 @@ tqdm
 pillow
 yapf
 PyQt6
+openpyxl
+pytest
