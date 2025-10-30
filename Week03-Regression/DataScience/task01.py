@@ -31,10 +31,7 @@ def build_summary(df):
 
 
 def calculate_value_counts(df):
-    return {
-        col: df[col].value_counts().sort_index()
-        for col in df.columns
-    }
+    return {col: df[col].value_counts().sort_index() for col in df.columns}
 
 
 def write_tables(summary, features):
@@ -107,6 +104,8 @@ def main():
     sns.boxplot(data=df[["influencer", "sales"]], x='influencer', y='sales')
     plt.title("Sales Distribution by Influencer Type")
     plt.show()
+
+    # data_audit - https://docs.google.com/spreadsheets/d/1U6rRev075ktUCYEs59j0EHJFpoT8wdUchkvk_vyXFZE/edit?usp=sharing
 
 
 if __name__ == '__main__':
