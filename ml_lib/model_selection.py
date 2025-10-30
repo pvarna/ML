@@ -68,7 +68,7 @@ def _split_stratify_groups(stratify_groups: StratifyGroups, test_size: float,
         if count < 2:
             raise RuntimeError("Stratify split group has fewer than 2 items")
 
-        test_count = int(np.floor(count * test_size))
+        test_count = int(np.ceil(count * test_size))
         test_count = min(max(1, test_count), count - 1)
 
         idx = X.index.to_numpy()

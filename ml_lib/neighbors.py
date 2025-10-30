@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from collections import Counter
 
-from ml_lib.metrics import euclidean_distance, manhattan_distance, accuracy_score
+from metrics import euclidean_distance, manhattan_distance, accuracy_score
 
 
 class KNeighborsClassifier:
