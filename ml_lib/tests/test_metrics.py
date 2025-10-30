@@ -120,9 +120,9 @@ class TestR2Score(unittest.TestCase):
 
     def test_when_constant_y_true_then_returns_zero(self):
         # Arrange
-        y_true = [5.0, 5.0, 5.0, 5.0]  # zero variance
+        y_true = [5.0, 5.0, 5.0, 5.0] 
         y_pred = [4.0, 6.0, 5.0, 5.0]
-        expected = 0.0  # per implementation
+        expected = 0.0
 
         # Act
         actual = r2_score(y_true, y_pred)
@@ -133,7 +133,7 @@ class TestR2Score(unittest.TestCase):
     def test_when_known_values_then_correct_score(self):
         # Arrange
         y_true = [1.0, 2.0, 3.0]
-        y_pred = [1.0, 2.0, 2.0]  # SSE=1, SST=2 => R2=0.5
+        y_pred = [1.0, 2.0, 2.0]
         expected = 0.5
 
         # Act
