@@ -12,21 +12,26 @@ ASSETS_DIR = "assets"
 
 
 def build_summary(df):
-    summary = df.describe().T
+    summary = pd.DataFrame(index=df.columns)
+
+    numeric_desc = df.describe().T
+    summary = summary.join(numeric_desc, how="left")
 
     num_missing = df.isna().sum()
-    pct_missing = (num_missing / len(df))
-    num_unique = df.nunique()
-    pct_unique = (num_unique / len(df))
+    pct_missing = num_missing / len(df)
+    num_unique = df.nunique(dropna=True)
+    pct_unique = num_unique / len(df)
 
     summary["NUM_MISSING"] = num_missing
     summary["%_MISSING"] = pct_missing
     summary["NUM_UNIQUE"] = num_unique
     summary["%_UNIQUE"] = pct_unique
+
     summary["UNIVARIATE ANALYSIS COMMENTS"] = ""
     summary["MULTIVARIATE ANALYSIS COMMENTS"] = ""
 
     summary = summary.round(2)
+
     return summary
 
 
@@ -72,7 +77,7 @@ def insert_img_into_sheet(workbook, feature_name, img_path):
 
 
 def plot_overwiew_pairplot(df):
-    pair = sns.pairplot(data=df, diag_kind="kde")
+    pair = sns.pairplot(data=df, diag_kind="kde", hue="sales")
     img_path = f"assets/overview.png"
     pair.savefig(img_path)
     plt.close()

@@ -54,9 +54,9 @@ def main():
     linear_regression_r2_rmse = root_mean_squared_error(
         y_test, y_pred_linear_regression)
 
-    print(f"Linear regression R^2: {linear_regression_r2:.4f}")
-    print(f"Linear regression R^2 adjusted: {linear_regression_r2_adj:.4f}")
-    print(f"Linear regression RMSE: {linear_regression_r2_rmse:.4f}")
+    print(f"Linear regression R^2: {linear_regression_r2:.2f}")
+    print(f"Linear regression R^2 adjusted: {linear_regression_r2_adj:.2f}")
+    print(f"Linear regression RMSE: {linear_regression_r2_rmse:.2f}")
 
     # model_report - https://docs.google.com/spreadsheets/d/1FtbAG1QNvNbQBJJKCIoQrwFHvGgexOraszZJURoRaHY/edit?usp=sharing
 
