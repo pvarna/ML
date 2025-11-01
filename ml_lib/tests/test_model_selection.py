@@ -114,10 +114,10 @@ class TestTrainTestSplit(unittest.TestCase):
                                                       random_state=42)
 
         # Assert
-        self.assertTrue(X_tr1.equals(X_tr2))
-        self.assertTrue(X_te1.equals(X_te2))
-        self.assertTrue(y_tr1.equals(y_tr2))
-        self.assertTrue(y_te1.equals(y_te2))
+        pd.testing.assert_frame_equal(X_tr1, X_tr2, check_dtype=False)
+        pd.testing.assert_frame_equal(X_te1, X_te2, check_dtype=False)
+        pd.testing.assert_series_equal(y_tr1, y_tr2, check_dtype=False)
+        pd.testing.assert_series_equal(y_te1, y_te2, check_dtype=False)
 
     def test_when_stratify_then_class_proportions_preserved_per_group(self):
         # Arrange
