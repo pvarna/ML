@@ -319,3 +319,24 @@ def f1_score(y_true: pd.Series,
         ]
 
     raise RuntimeError("average='samples' is not yet implemented")
+
+
+def log_loss(y_true: pd.Series, y_pred: pd.Series) -> float:
+    if len(y_true) != len(y_pred):
+        raise RuntimeError(
+            "Sizes of correct and predicted labels are different")
+
+    EPS = 0.00001
+
+    y_true = y_true.to_numpy()
+    y_pred = y_pred.to_numpy()
+
+    if np.isscalar(y_pred[0]) or np.ndim(y_pred[0]) == 0:
+        p1 = np.clip(y_pred.astype(float), EPS, 1 - EPS)
+        p_true = np.where(y_true == 1, p1, 1.0 - p1)
+        return float(-np.mean(np.log(p_true)))
+
+    probs = np.array([np.array(p, dtype=float) for p in y_pred], dtype=float)
+    probs = np.clip(probs, EPS, 1 - EPS)
+    p_true = probs[np.arange(len(y_true)), y_true]
+    return float(-np.mean(np.log(p_true)))

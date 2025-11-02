@@ -10,6 +10,7 @@ from metrics import euclidean_distance
 from metrics import manhattan_distance
 from metrics import r2_score
 from metrics import root_mean_squared_error
+from metrics import log_loss
 
 
 class TestAccuracyScore(unittest.TestCase):
@@ -700,7 +701,7 @@ class TestF1Score(unittest.TestCase):
     def test_when_denominator_is_0_and_warn_then_return_0(self):
         # Arrange
         y_true = pd.Series([0, 0, 0])
-        y_pred = pd.Series([0, 0, 0]) 
+        y_pred = pd.Series([0, 0, 0])
 
         # Act
         actual = f1_score(y_true,
@@ -825,6 +826,43 @@ class TestF1Score(unittest.TestCase):
         # Act & Assert
         with self.assertRaises(RuntimeError):
             _ = f1_score(y_true, y_pred, average="samples")
+
+
+class TestLogLoss(unittest.TestCase):
+
+    def test_when_sizes_differ_then_throws_runtime_error(self):
+        # Arrange
+        y_true = pd.Series([0, 1, 2])
+        y_pred = pd.Series([[0.7, 0.2, 0.1], [0.1, 0.8, 0.1]])
+
+        # Act & Assert
+        with self.assertRaises(RuntimeError):
+            _ = log_loss(y_true, y_pred)
+
+    def test_when_multiclass_known_values_then_correct_value(self):
+        # Arrange
+        y_true = pd.Series([0, 1, 2])
+        y_pred = pd.Series([[0.7, 0.2, 0.1], [0.1, 0.8, 0.1], [0.2, 0.2, 0.6]])
+        expected = float(-np.mean(np.log([0.7, 0.8, 0.6])))
+
+        # Act
+        actual = log_loss(y_true, y_pred)
+
+        # Assert
+        self.assertAlmostEqual(actual, expected, places=7)
+
+    def test_when_binary_with_probabilities_then_correct_value(self):
+        # Arrange
+        y_true = pd.Series([0, 1, 1, 0])
+        y_pred = pd.Series([0.1, 0.8, 0.7, 0.4])
+        expected = float(-np.mean(np.log([1 - 0.1, 0.8, 0.7, 1 - 0.4])))
+
+        # Act
+        actual = log_loss(y_true, y_pred)
+
+        # Assert
+        self.assertAlmostEqual(actual, expected, places=7)
+
 
 
 if __name__ == "__main__":
