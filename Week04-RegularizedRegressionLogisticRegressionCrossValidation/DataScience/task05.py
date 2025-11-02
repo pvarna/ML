@@ -1,6 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 from sklearn.metrics import (
     RocCurveDisplay,
@@ -10,8 +11,11 @@ from sklearn.metrics import (
     recall_score,
     make_scorer,
 )
-from sklearn.model_selection import train_test_split, GridSearchCV, StratifiedKFold
+from sklearn.model_selection import train_test_split, RandomizedSearchCV, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
+
+import warnings
+warnings.filterwarnings("ignore")
 
 DATASET_PATH = os.path.join("..", "..", "DATA", "diabetes_clean.csv")
 TARGET = "diabetes"
@@ -23,18 +27,35 @@ MAX_ITER = 5000
 N_ITER = 50
 
 
-def build_param_grid():
+def build_param_distributions():
+    np.random.seed(RANDOM_STATE)
+
+    C_values = [1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1, 10, 100, 1000, 10000]
+
     return [
         {
             "penalty": ["l1"],
-            "C": [0.1, 1, 10],
+            "C": C_values,
             "solver": ["liblinear", "saga"],
             "class_weight": [None, "balanced"],
         },
         {
             "penalty": ["l2"],
-            "C": [0.1, 1, 10],
-            "solver": ["lbfgs", "liblinear"],
+            "C": C_values,
+            "solver": ["lbfgs", "liblinear", "newton-cg", "newton-cholesky", "sag", "saga"],
+            "class_weight": [None, "balanced"],
+        },
+        {
+            "penalty": ["elasticnet"],
+            "C": C_values,
+            "solver": ["saga"],
+            "class_weight": [None, "balanced"],
+            "l1_ratio": [0.1, 0.3, 0.5, 0.7, 0.9]
+        },
+        {
+            "penalty": [None],
+            "C": C_values,
+            "solver": ["lbfgs", "newton-cg", "newton-cholesky", "sag", "saga"],
             "class_weight": [None, "balanced"],
         },
     ]
@@ -57,32 +78,35 @@ def build_scorers():
     }
 
 
-def fit_grid_search(X_train, y_train):
+def fit_random_search(X_train, y_train):
     base = LogisticRegression(random_state=RANDOM_STATE, max_iter=MAX_ITER)
 
     cv = StratifiedKFold(n_splits=CV_FOLDS,
                          shuffle=True,
                          random_state=RANDOM_STATE)
 
-    gs = GridSearchCV(
+    rs = RandomizedSearchCV(
         estimator=base,
-        param_grid=build_param_grid(),
+        param_distributions=build_param_distributions(),
+        n_iter=N_ITER,
         scoring=build_scorers(),
         refit="f1_weighted",
         cv=cv,
-        return_train_score=False,
+        random_state=RANDOM_STATE,
+        return_train_score=False
     )
-    gs.fit(X_train, y_train)
-    return gs
+
+    rs.fit(X_train, y_train)
+    return rs
 
 
-def save_cv_metrics_csv(gs,
+def save_cv_metrics_csv(rs,
                         X_train,
                         y_train,
                         X_test,
                         y_test,
                         out_path="metrics.csv"):
-    results = pd.DataFrame(gs.cv_results_)
+    results = pd.DataFrame(rs.cv_results_)
 
     keep_cols = [
         "param_C",
@@ -100,7 +124,7 @@ def save_cv_metrics_csv(gs,
     tidy = results[keep_cols].copy()
 
     matrices = []
-    for params in gs.cv_results_["params"]:
+    for params in rs.cv_results_["params"]:
         model = LogisticRegression(random_state=RANDOM_STATE,
                                    **params,
                                    max_iter=MAX_ITER)
@@ -138,13 +162,11 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y)
 
-    gs = fit_grid_search(X_train, y_train)
-    print(f"Best params: {gs.best_params_}")
+    rs = fit_random_search(X_train, y_train)
+    print(f"Best params: {rs.best_params_}")
 
-    save_cv_metrics_csv(gs, X_train, y_train, X_test, y_test)
-    evaluate_on_test(gs.best_estimator_, X_test, y_test)
-
-    # model_report - https://docs.google.com/spreadsheets/d/1wyhTHWc8K_wxHRzaVrv0qZcA7RwGZx934MrwwofKMRM/edit?usp=sharing
+    save_cv_metrics_csv(rs, X_train, y_train, X_test, y_test)
+    evaluate_on_test(rs.best_estimator_, X_test, y_test)
 
 
 if __name__ == "__main__":
