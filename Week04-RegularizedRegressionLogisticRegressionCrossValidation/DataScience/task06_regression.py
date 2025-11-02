@@ -11,7 +11,7 @@ from sklearn.metrics import (r2_score, root_mean_squared_error, make_scorer)
 
 DATASET_PATH = os.path.join("..", "..", "DATA", "diabetes_clean.csv")
 TARGET = "glucose"
-FEATURES_TO_IGNORE = []
+FEATURES_TO_IGNORE = ["pregnancies", "triceps"]
 RANDOM_STATE = 21
 TEST_SIZE = 0.2
 CV_FOLDS = 5
@@ -179,6 +179,17 @@ def main():
     )
     evaluate_on_test("Lasso (best)", lasso_grid.best_estimator_, X_test_scaled,
                      y_test)
+    best_lasso = lasso_grid.best_estimator_
+    lasso_coef = best_lasso.coef_
+    columns = X_train.columns
+
+    plt.figure()
+    plt.bar(range(len(columns)), lasso_coef)
+    plt.xticks(range(len(columns)), columns, rotation=45, ha="right")
+    plt.ylabel("Coefficient (scaled features)")
+    plt.title("Lasso Feature Importance")
+    plt.tight_layout()
+    plt.show()
 
     models = {
         "LinearRegression": (linreg_grid.best_estimator_, X_test),
