@@ -25,7 +25,6 @@ def run_logreg_grid(X_train, y_train, X_test, y_test, param_grid):
     counter = 1
     data = []
     for params in iter_param_grid(param_grid):
-        # build model with safe defaults
         model = LogisticRegression(
             penalty=params["penalty"],
             C=params["C"],
