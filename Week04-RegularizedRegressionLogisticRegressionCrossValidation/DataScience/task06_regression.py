@@ -194,6 +194,8 @@ def main():
     summary = pd.DataFrame(rows, columns=["model", "r2", "rmse"])
     print(summary)
 
+    # model_report - https://docs.google.com/spreadsheets/d/1FZF-kkxXZyQPouweBr2qDnkLcnizZY_tFMiaZZK-Iqk/edit?usp=sharing
+
 
 if __name__ == "__main__":
     main()
