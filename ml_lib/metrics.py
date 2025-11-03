@@ -56,8 +56,8 @@ def root_mean_squared_error(y_true: List[float], y_pred: List[float]) -> float:
     return sqrt(mse)
 
 
-def _validate_labels_arg(labels: List[int | float | bool | str],
-                         y_true: pd.Series, y_pred: pd.Series):
+def _validate_labels_arg(labels: pd.Series, y_true: pd.Series,
+                         y_pred: pd.Series):
     if labels == None:
         return sorted(set(pd.unique(y_true)) | set(pd.unique(y_pred)))
     if len(labels) == 0:
@@ -95,7 +95,7 @@ def _binary_recall(y_true: pd.Series,
 
 def recall_score(y_true: pd.Series,
                  y_pred: pd.Series,
-                 labels: List[int | float | bool | str] = None,
+                 labels: pd.Series = None,
                  pos_label: int | float | bool | str = 1,
                  average: str = "binary",
                  zero_division: str | float = "warn") -> float | List[float]:
@@ -180,7 +180,7 @@ def _binary_precision(y_true: pd.Series,
 def precision_score(
         y_true: pd.Series,
         y_pred: pd.Series,
-        labels: List[int | float | bool | str] = None,
+        labels: pd.Series = None,
         pos_label: int | float | bool | str = 1,
         average: str = "binary",
         zero_division: str | float = "warn") -> float | List[float]:
@@ -263,7 +263,7 @@ def _binary_f1(y_true: pd.Series,
 
 def f1_score(y_true: pd.Series,
              y_pred: pd.Series,
-             labels: List[int | float | bool | str] = None,
+             labels: pd.Series = None,
              pos_label: int | float | bool | str = 1,
              average: str = "binary",
              zero_division: str | float = "warn") -> float | List[float]:
@@ -321,22 +321,85 @@ def f1_score(y_true: pd.Series,
     raise RuntimeError("average='samples' is not yet implemented")
 
 
-def log_loss(y_true: pd.Series, y_pred: pd.Series) -> float:
+def log_loss(y_true: pd.Series,
+             y_pred: pd.Series,
+             normalize: bool = True,
+             labels: pd.Series = None) -> float:
+
     if len(y_true) != len(y_pred):
         raise RuntimeError(
             "Sizes of correct and predicted labels are different")
 
-    EPS = 0.00001
+    if len(y_true) == 0:
+        return 0.0
 
-    y_true = y_true.to_numpy()
-    y_pred = y_pred.to_numpy()
+    EPS = 0.000001
 
-    if np.isscalar(y_pred[0]) or np.ndim(y_pred[0]) == 0:
-        p1 = np.clip(y_pred.astype(float), EPS, 1 - EPS)
-        p_true = np.where(y_true == 1, p1, 1.0 - p1)
-        return float(-np.mean(np.log(p_true)))
+    is_y_pred_1d = np.isscalar(y_pred.iloc[0])
+    is_y_true_1d = np.isscalar(y_true.iloc[0])
 
-    probs = np.array([np.array(p, dtype=float) for p in y_pred], dtype=float)
-    probs = np.clip(probs, EPS, 1 - EPS)
-    p_true = probs[np.arange(len(y_true)), y_true]
-    return float(-np.mean(np.log(p_true)))
+    losses = []
+
+    if is_y_pred_1d:
+        if not is_y_true_1d:
+            raise RuntimeError(
+                "y_pred is 1D (binary) but y_true is 2D (one-hot)")
+
+        unique_labels = pd.unique(y_true)
+        if len(unique_labels) > 2:
+            raise RuntimeError(
+                "y_pred is 1D, but y_true has more than 2 labels")
+
+        positive_label = sorted(unique_labels)[-1]
+        y_pred_clipped = y_pred.clip(lower=EPS, upper=1 - EPS)
+
+        for yt, yp in zip(y_true, y_pred_clipped):
+            y = 1 if yt == positive_label else 0
+            loss = -(y * np.log(yp) + (1 - y) * np.log(1.0 - yp))
+            losses.append(loss)
+
+    else:
+        if is_y_true_1d:
+            n_classes = len(y_pred.iloc[0])
+
+            if labels is None:
+                unique_labels = pd.unique(y_true)
+                labels = pd.Series(sorted(unique_labels))
+
+            if len(labels) != n_classes:
+                raise RuntimeError("Shape mismatch between y_true and y_pred")
+
+            label_map = {label: i for i, label in enumerate(labels)}
+
+            for yt, p_list in zip(y_true, y_pred):
+                p_arr = np.asarray(p_list)
+
+                true_index = label_map.get(yt)
+                if true_index is None:
+                    raise RuntimeError(
+                        f"Label '{yt}' not found in provided labels")
+
+                p_arr = p_arr / p_arr.sum()
+                p_arr = p_arr.clip(EPS, 1 - EPS)
+
+                p_true = p_arr[true_index]
+                loss = -np.log(p_true)
+                losses.append(loss)
+
+        else:
+            for yt_one_hot, p_list in zip(y_true, y_pred):
+                yt_arr = np.asarray(yt_one_hot)
+                p_arr = np.asarray(p_list)
+
+                if len(yt_arr) != len(p_arr):
+                    raise RuntimeError(
+                        "Shape mismatch between y_true and y_pred")
+
+                p_arr = p_arr / p_arr.sum()
+                p_arr = p_arr.clip(EPS, 1 - EPS)
+
+                loss = -np.sum(yt_arr * np.log(p_arr))
+                losses.append(loss)
+
+    total = np.sum(losses)
+    return total / len(losses) if normalize else total

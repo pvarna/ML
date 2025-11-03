@@ -832,37 +832,236 @@ class TestLogLoss(unittest.TestCase):
 
     def test_when_sizes_differ_then_throws_runtime_error(self):
         # Arrange
-        y_true = pd.Series([0, 1, 2])
-        y_pred = pd.Series([[0.7, 0.2, 0.1], [0.1, 0.8, 0.1]])
+        y_true = pd.Series([0, 1, 1])
+        y_pred = pd.Series([0.2, 0.7, 0.8, 0.3])
 
         # Act & Assert
         with self.assertRaises(RuntimeError):
             _ = log_loss(y_true, y_pred)
 
-    def test_when_multiclass_known_values_then_correct_value(self):
+    def test_when_y_pred_is_1d_and_y_true_has_multiclass_labels_then_throws_runtime_error(self):
         # Arrange
         y_true = pd.Series([0, 1, 2])
-        y_pred = pd.Series([[0.7, 0.2, 0.1], [0.1, 0.8, 0.1], [0.2, 0.2, 0.6]])
-        expected = float(-np.mean(np.log([0.7, 0.8, 0.6])))
+        y_pred = pd.Series([0.2, 0.7, 0.8])
 
-        # Act
-        actual = log_loss(y_true, y_pred)
+        # Act & Assert
+        with self.assertRaises(RuntimeError):
+            _ = log_loss(y_true, y_pred)
 
-        # Assert
-        self.assertAlmostEqual(actual, expected, places=7)
-
-    def test_when_binary_with_probabilities_then_correct_value(self):
+    def test_when_simple_binary_case_then_calculates_correct_loss(self):
         # Arrange
-        y_true = pd.Series([0, 1, 1, 0])
-        y_pred = pd.Series([0.1, 0.8, 0.7, 0.4])
-        expected = float(-np.mean(np.log([1 - 0.1, 0.8, 0.7, 1 - 0.4])))
-
+        y_true = pd.Series([0, 1])
+        y_pred = pd.Series([0.25, 0.75])
+        
         # Act
+        expected = -np.log(0.75)
         actual = log_loss(y_true, y_pred)
 
         # Assert
-        self.assertAlmostEqual(actual, expected, places=7)
+        self.assertAlmostEqual(expected, actual)
 
+    def test_when_perfect_prediction_then_returns_near_zero_loss(self):
+        # Arrange
+        y_true = pd.Series([0, 1, 0, 1])
+        y_pred = pd.Series([0.0, 1.0, 0.0, 1.0])
+        
+        # Act
+        EPS = 0.000001
+        expected = -(np.log(1.0 - EPS))
+        actual = log_loss(y_true, y_pred)
+
+        # Assert
+        self.assertAlmostEqual(expected, actual)
+
+    def test_when_perfectly_wrong_prediction_then_returns_high_loss(self):
+        # Arrange
+        y_true = pd.Series([0, 1])
+        y_pred = pd.Series([1.0, 0.0])
+
+        # Act
+        EPS = 0.000001
+        expected = -np.log(EPS)
+        actual = log_loss(y_true, y_pred)
+
+        # Assert
+        self.assertAlmostEqual(expected, actual)
+
+    def test_when_normalize_is_false_then_returns_sum_of_losses(self):
+        # Arrange
+        y_true = pd.Series([0, 1])
+        y_pred = pd.Series([0.25, 0.75])
+        
+        # Act
+        expected = -np.log(0.75) * 2
+        actual = log_loss(y_true, y_pred, normalize=False)
+
+        # Assert
+        self.assertAlmostEqual(expected, actual)
+
+    def test_when_labels_are_strings_then_calculates_correct_loss(self):
+        # Arrange
+        y_true = pd.Series(['cat', 'dog']) 
+        y_pred = pd.Series([0.25, 0.75])
+        
+        # Act
+        expected = -np.log(0.75)
+        actual = log_loss(y_true, y_pred)
+
+        # Assert
+        self.assertAlmostEqual(expected, actual)
+
+    def test_when_multiclass_then_calculates_correct_loss(self):
+        # Arrange
+        y_true = pd.Series([2, 0, 1])
+        y_pred = pd.Series([
+            [0.1, 0.2, 0.7],
+            [0.8, 0.1, 0.1],
+            [0.3, 0.6, 0.1] 
+        ])
+        
+        # Act
+        l1 = -np.log(0.7)
+        l2 = -np.log(0.8)
+        l3 = -np.log(0.6)
+        expected = (l1 + l2 + l3) / 3.0
+        actual = log_loss(y_true, y_pred)
+        
+        # Assert
+        self.assertAlmostEqual(expected, actual)
+
+    def test_when_multiclass_one_hot_then_calculates_correct_loss(self):
+        # Arrange
+        y_true = pd.Series([
+            [0, 0, 1],
+            [1, 0, 0],
+            [0, 1, 0]
+        ])
+        y_pred = pd.Series([
+            [0.1, 0.2, 0.7],  
+            [0.8, 0.1, 0.1], 
+            [0.3, 0.6, 0.1]  
+        ])
+        
+        # Act
+        l1 = -np.log(0.7)
+        l2 = -np.log(0.8)
+        l3 = -np.log(0.6)
+        expected = (l1 + l2 + l3) / 3.0
+        actual = log_loss(y_true, y_pred)
+        
+        # Assert
+        self.assertAlmostEqual(expected, actual)
+
+    def test_when_binary_with_2d_pred_then_calculates_correct_loss(self):
+        # Arrange
+        y_true = pd.Series([0, 1])
+        y_pred = pd.Series([
+            [0.75, 0.25], 
+            [0.25, 0.75] 
+        ])
+        
+        # Act
+        expected = -np.log(0.75)
+        actual = log_loss(y_true, y_pred)
+        
+        # Assert
+        self.assertAlmostEqual(expected, actual)
+
+    def test_when_multiclass_and_normalize_is_false_then_returns_sum(self):
+        # Arrange
+        y_true = pd.Series([2, 0, 1])
+        y_pred = pd.Series([
+            [0.1, 0.2, 0.7],  
+            [0.8, 0.1, 0.1],  
+            [0.2, 0.6, 0.2]  
+        ])
+        
+        # Act
+        expected = -np.log(0.7) + -np.log(0.8) + -np.log(0.6)
+        actual = log_loss(y_true, y_pred, normalize=False)
+        
+        # Assert
+        self.assertAlmostEqual(expected, actual)
+
+    def test_when_multiclass_with_labels_param_then_calculates_correct_loss(self):
+        # Arrange
+        y_true = pd.Series(['cat', 'dog'])
+        y_pred = pd.Series([
+            [0.25, 0.75], 
+            [0.75, 0.25] 
+        ])
+        labels = pd.Series(['dog', 'cat'])
+        
+        # Act
+        expected = -np.log(0.75)
+        actual = log_loss(y_true, y_pred, labels=labels)
+        
+        # Assert
+        self.assertAlmostEqual(expected, actual)
+
+    def test_when_y_pred_rows_not_normalized_then_renormalizes_and_calculates_correct_loss(self):
+        # Arrange
+        y_true = pd.Series([0, 1])
+        y_pred = pd.Series([
+            [1.5, 0.5],
+            [0.5, 1.5]   
+        ])
+        
+        # Act
+        expected = -np.log(0.75)
+        actual = log_loss(y_true, y_pred)
+        
+        # Assert
+        self.assertAlmostEqual(expected, actual)
+
+    def test_when_inputs_are_empty_then_returns_zero(self):
+        # Arrange
+        y_true = pd.Series([], dtype='int64')
+        y_pred = pd.Series([], dtype='float64')
+        
+        # Act
+        expected = 0.0
+        actual = log_loss(y_true, y_pred)
+        
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_when_y_pred_is_1d_and_y_true_is_2d_then_throws_runtime_error(self):
+        # Arrange
+        y_true = pd.Series([[0, 1], [1, 0]])
+        y_pred = pd.Series([0.8, 0.2])
+        
+        # Act & Assert
+        with self.assertRaises(RuntimeError):
+            _ = log_loss(y_true, y_pred)
+            
+    def test_when_y_pred_cols_mismatch_labels_then_throws_runtime_error(self):
+        # Arrange
+        y_true = pd.Series([0, 1, 2]) 
+        y_pred = pd.Series([[0.8, 0.2], [0.3, 0.7], [0.1, 0.9]])
+        
+        # Act & Assert
+        with self.assertRaises(RuntimeError):
+            _ = log_loss(y_true, y_pred)
+            
+    def test_when_y_pred_cols_mismatch_one_hot_labels_then_throws_runtime_error(self):
+        # Arrange
+        y_true = pd.Series([[0,0,1], [1,0,0]]) 
+        y_pred = pd.Series([[0.8, 0.2], [0.3, 0.7]])
+        
+        # Act & Assert
+        with self.assertRaises(RuntimeError):
+            _ = log_loss(y_true, y_pred)
+            
+    def test_when_y_true_label_not_in_labels_map_then_throws_runtime_error(self):
+        # Arrange
+        y_true = pd.Series([0, 1, 2])
+        y_pred = pd.Series([[0.1, 0.9], [0.8, 0.2], [0.3, 0.7]])
+        labels = pd.Series([0, 1])
+        
+        # Act & Assert
+        with self.assertRaises(RuntimeError):
+            _ = log_loss(y_true, y_pred, labels=labels)
 
 
 if __name__ == "__main__":
