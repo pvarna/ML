@@ -30,8 +30,8 @@ def plot_horizontal_cv_bars(
     h = 0.35
 
     plt.figure(figsize=(9, 5.5))
-    plt.barh(y_pos - h / 2, df[test], h, label="Mean CV Test R²")
-    plt.barh(y_pos + h / 2, df[train], h, label="Mean CV Train R²")
+    plt.barh(y_pos - h / 2, df[test], h, label="Mean CV Test R^2")
+    plt.barh(y_pos + h / 2, df[train], h, label="Mean CV Train R^2")
     plt.yticks(y_pos, df[y])
     plt.xlabel("Score")
     plt.title(title)
