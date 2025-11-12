@@ -2,8 +2,6 @@ import numpy as np
 import pandas as pd
 from typing import Optional, Any, Dict, Tuple
 
-TELECOM_PATH = "../DATA/telecom_churn_clean.csv"
-
 DataPair = Tuple[pd.DataFrame, pd.Series]
 StratifyGroups = Dict[Any, DataPair]
 SplitGroups = Dict[Any, Tuple[DataPair, DataPair]]
