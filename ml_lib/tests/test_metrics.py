@@ -9,6 +9,7 @@ from metrics import f1_score
 from metrics import euclidean_distance
 from metrics import manhattan_distance
 from metrics import r2_score
+from metrics import r2_adjusted_score
 from metrics import root_mean_squared_error
 from metrics import log_loss
 
@@ -157,6 +158,78 @@ class TestR2Score(unittest.TestCase):
         # Assert
         self.assertLess(actual, 0.0)
 
+
+class TestR2AdjustedScore(unittest.TestCase):
+
+    def test_when_sizes_differ_then_throws_runtime_error(self):
+        # Arrange
+        y_true = pd.Series([1.0, 2.0, 3.0])
+        y_pred = pd.Series([1.0, 2.0])
+
+        # Act & Assert
+        with self.assertRaises(RuntimeError):
+            _ = r2_adjusted_score(y_true, y_pred, features_count=1)
+
+    def test_when_perfect_prediction_then_returns_one(self):
+        # Arrange
+        y_true = [1.0, 2.0, 3.0]
+        y_pred = [1.0, 2.0, 3.0]
+        features_count = 1
+        expected = 1.0
+
+        # Act
+        actual = r2_adjusted_score(y_true, y_pred, features_count)
+
+        # Assert
+        self.assertEqual(actual, expected)
+
+    def test_when_constant_y_true_then_returns_zero(self):
+        # Arrange
+        y_true = [5.0, 5.0, 5.0, 5.0]
+        y_pred = [4.0, 6.0, 5.0, 5.0]
+        features_count = 0
+        expected = 0.0
+
+        # Act
+        actual = r2_adjusted_score(y_true, y_pred, features_count)
+
+        # Assert
+        self.assertEqual(actual, expected)
+
+    def test_when_known_values_then_correct_adjusted_score(self):
+        # Arrange
+        y_true = [1.0, 2.0, 3.0]
+        y_pred = [1.0, 2.0, 2.0]
+        features_count = 1
+        expected = 0.0
+
+        # Act
+        actual = r2_adjusted_score(y_true, y_pred, features_count)
+
+        # Assert
+        self.assertAlmostEqual(actual, expected, places=7)
+
+    def test_when_bad_model_then_negative_adjusted_r2(self):
+        # Arrange
+        y_true = [0.0, 1.0]
+        y_pred = [10.0, 10.0]
+        features_count = 0 
+
+        # Act
+        actual = r2_adjusted_score(y_true, y_pred, features_count)
+
+        # Assert
+        self.assertLess(actual, 0.0)
+
+    def test_when_too_many_features_then_division_by_zero(self):
+        # Arrange
+        y_true = [1.0, 2.0, 3.0]
+        y_pred = [1.0, 2.0, 3.0]
+        features_count = 2
+
+        # Act & Assert
+        with self.assertRaises(ZeroDivisionError):
+            _ = r2_adjusted_score(y_true, y_pred, features_count)
 
 class TestRootMeanSquaredError(unittest.TestCase):
 

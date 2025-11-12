@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from .metrics import r2_score
-from .stats import sigmoid, softmax
+from metrics import r2_score
+from stats import sigmoid, softmax
 
 
 class LinearRegression:

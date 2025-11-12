@@ -45,6 +45,18 @@ def r2_score(y_true: List[float], y_pred: List[float]) -> float:
     return 1 - numerator / denominator
 
 
+def r2_adjusted_score(y_true: List[float], y_pred: List[float],
+                      features_count: int) -> float:
+    if len(y_true) != len(y_pred):
+        raise RuntimeError(
+            "Sizes of correct and predicted labels are different")
+
+    r2_score_value = r2_score(y_true, y_pred)
+    samples_count = len(y_true)
+    return 1 - (1 - r2_score_value) * (samples_count - 1) / (
+        samples_count - features_count - 1)
+
+
 def root_mean_squared_error(y_true: List[float], y_pred: List[float]) -> float:
     if len(y_true) != len(y_pred):
         raise RuntimeError(
