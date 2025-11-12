@@ -94,7 +94,3 @@ class TestSoftmax(unittest.TestCase):
 
         # Assert
         np.testing.assert_almost_equal(actual, expected, decimal=7)
-
-
-if __name__ == "__main__":
-    unittest.main()

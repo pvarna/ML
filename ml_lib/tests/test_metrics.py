@@ -1135,7 +1135,3 @@ class TestLogLoss(unittest.TestCase):
         # Act & Assert
         with self.assertRaises(RuntimeError):
             _ = log_loss(y_true, y_pred, labels=labels)
-
-
-if __name__ == "__main__":
-    unittest.main()

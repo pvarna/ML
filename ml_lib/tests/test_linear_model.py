@@ -365,6 +365,3 @@ class TestLassoInitFitPredict(unittest.TestCase):
         self.assertGreater(abs(lasso.coef_[0]), 1.0)
         self.assertAlmostEqual(lasso.coef_[1], 0.0, places=2)
         self.assertAlmostEqual(lasso.coef_[2], 0.0, places=2)
-
-if __name__ == "__main__":
-    unittest.main()

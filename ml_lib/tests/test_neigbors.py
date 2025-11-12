@@ -120,6 +120,3 @@ class TestKNeighborsClassifierFitPredict(unittest.TestCase):
             # Assert
             mock_euclidean.assert_not_called()
             mock_manhattan.assert_called()
-
-if __name__ == "__main__":
-    unittest.main()

@@ -141,6 +141,3 @@ class TestTrainTestSplit(unittest.TestCase):
         self.assertEqual(len(X_tr) + len(X_te), len(X))
         self.assertEqual(len(y_tr) + len(y_te), len(y))
 
-
-if __name__ == "__main__":
-    unittest.main()
