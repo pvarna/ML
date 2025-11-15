@@ -108,10 +108,27 @@ def plot_correlation_heatmap(df):
 
     return img_path
 
+def plot_boxplot_by_genre(df, target_col, category_col):
+    plt.figure(figsize=(8, 5))
+    sns.boxplot(data=df, x=category_col, y=target_col)
+    plt.title(f"Boxplot grouped by {category_col}")
+    plt.xlabel(category_col)
+    plt.ylabel(target_col)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
 
-def insert_imgs(workbook, overview_img_path, correlation_img_path):
+    img_path = os.path.join(ASSETS_DIR,
+                            f"{target_col}_by_{category_col}_boxplot.png")
+    plt.savefig(img_path)
+    plt.close()
+
+    return img_path
+
+
+def insert_imgs(workbook, overview_img_path, correlation_img_path, boxplot_img_path=None):
     workbook["overview"].add_image(Image(correlation_img_path), "A30")
     workbook["overview"].add_image(Image(overview_img_path), "A60")
+    workbook["overview"].add_image(Image(boxplot_img_path), "P30")
 
 
 def create_dataset(path):
@@ -121,19 +138,16 @@ def create_dataset(path):
     return pd.DataFrame(data)
 
 
-def create_dummy_variables(df, non_numeric_feature):
-    dummies = pd.get_dummies(df[non_numeric_feature],
-                             drop_first=True,
-                             dtype=int)
-    dummies = pd.concat([df, dummies], axis=1)
-    dummies = dummies.drop(columns=[non_numeric_feature])
+def encode_categorical(df, column):
+    dummies = pd.get_dummies(df[column], drop_first=True, dtype=int)
+    df = pd.concat([df, dummies], axis=1).drop(columns=[column])
 
-    return dummies
+    return df
 
 
 def main():
-    df = create_dataset(DATASET_PATH)
-    df = create_dummy_variables(df, NON_NUMERIC_FEATURE)
+    df_raw = create_dataset(DATASET_PATH)
+    df = encode_categorical(df_raw, NON_NUMERIC_FEATURE)
 
     os.makedirs(ASSETS_DIR, exist_ok=True)
 
@@ -148,7 +162,8 @@ def main():
 
     overview_img_path = plot_overwiew_pairplot(df)
     correlation_img_path = plot_correlation_heatmap(df)
-    insert_imgs(workbook, overview_img_path, correlation_img_path)
+    boxplot_img_path = plot_boxplot_by_genre(df_raw, TARGET, NON_NUMERIC_FEATURE)
+    insert_imgs(workbook, overview_img_path, correlation_img_path, boxplot_img_path)
     workbook.save(OUTPUT_XLSX)
 
     # data_audit - https://docs.google.com/spreadsheets/d/1HSV5wir92NMxP5HekZMNTkPHnTRoL1pdn-raWGXi2jc/edit?usp=sharing
