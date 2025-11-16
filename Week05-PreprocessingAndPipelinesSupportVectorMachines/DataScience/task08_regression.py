@@ -9,13 +9,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 DATASET_PATH = os.path.join("..", "..", "DATA", "music_clean.csv")
-TARGET = "loudness"
+TARGET = "energy"
 RANDOM_STATE = 21
 TEST_SIZE = 0.2
-FEATURES = [
-    "energy", "acousticness", "instrumentalness", "genre", "valence",
-    "danceability", "popularity"
-]
+FEATURES = ["loudness", "acousticness"]
 
 
 def main():
@@ -27,7 +24,10 @@ def main():
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE)
 
-    pipeline = Pipeline([('model', Ridge(random_state=RANDOM_STATE, alpha=0.0001))])
+    pipeline = Pipeline([
+        # ("scaler", StandardScaler()),
+        ('model', Ridge(random_state=RANDOM_STATE))
+    ])
 
     pipeline.fit(X_train, y_train)
     y_pred = pipeline.predict(X_test)
@@ -48,7 +48,7 @@ def main():
     plt.tight_layout()
     plt.show()
 
-    # model_report - https://docs.google.com/spreadsheets/d/1eZ76KCPt2xwSmXSrSKP9J8kmUFCqYxK5T5ltdGg0SpY/edit?usp=sharing
+    # model_report - https://docs.google.com/spreadsheets/d/1XuJCtq295YBoHzZWWpGkpsDtp22fekNGpNM_2cfI4Ps/edit?usp=sharing
 
 
 if __name__ == '__main__':
