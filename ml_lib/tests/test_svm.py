@@ -102,7 +102,3 @@ class TestSVCFitPredict(unittest.TestCase):
         self.assertEqual(set(svc.classes_), {0, 1})
         self.assertGreater(len(svc.support_vectors_), 0)
         self.assertIsNotNone(svc.intercept_)
-
-
-if __name__ == "__main__":
-    unittest.main()
