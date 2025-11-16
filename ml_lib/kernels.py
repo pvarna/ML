@@ -5,8 +5,10 @@ from math import sqrt
 
 
 def linear(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
-    if len(X) != len(Y):
-        raise RuntimeError("Sizes of input arrays are different")
+    if X.ndim != 2 or Y.ndim != 2:
+        raise RuntimeError("X and Y must be 2D arrays")
+    if X.shape[1] != Y.shape[1]:
+        raise RuntimeError("X and Y must have same number of features")
 
     return X @ Y.T
 
@@ -16,8 +18,10 @@ def polynomial(X: np.ndarray,
                degree: int = 3,
                gamma: float = None,
                coef0: float = 1.0) -> np.ndarray:
-    if len(X) != len(Y):
-        raise RuntimeError("Sizes of input arrays are different")
+    if X.ndim != 2 or Y.ndim != 2:
+        raise RuntimeError("X and Y must be 2D arrays")
+    if X.shape[1] != Y.shape[1]:
+        raise RuntimeError("X and Y must have same number of features")
 
     if gamma is None:
         gamma = 1.0 / X.shape[1]
@@ -26,8 +30,10 @@ def polynomial(X: np.ndarray,
 
 
 def rbf(X: np.ndarray, Y: np.ndarray, gamma: float = None) -> np.ndarray:
-    if len(X) != len(Y):
-        raise RuntimeError("Sizes of input arrays are different")
+    if X.ndim != 2 or Y.ndim != 2:
+        raise RuntimeError("X and Y must be 2D arrays")
+    if X.shape[1] != Y.shape[1]:
+        raise RuntimeError("X and Y must have same number of features")
 
     if gamma is None:
         gamma = 1.0 / X.shape[1]
@@ -44,8 +50,10 @@ def sigmoid(X: np.ndarray,
             Y: np.ndarray,
             gamma: float = None,
             coef0: float = 1.0) -> np.ndarray:
-    if len(X) != len(Y):
-        raise RuntimeError("Sizes of input arrays are different")
+    if X.ndim != 2 or Y.ndim != 2:
+        raise RuntimeError("X and Y must be 2D arrays")
+    if X.shape[1] != Y.shape[1]:
+        raise RuntimeError("X and Y must have same number of features")
 
     if gamma is None:
         gamma = 1.0 / X.shape[1]

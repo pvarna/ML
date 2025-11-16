@@ -6,10 +6,10 @@ from kernels import linear, polynomial, rbf, sigmoid
 
 class TestLinearKernel(unittest.TestCase):
 
-    def test_when_sizes_differ_then_throws_runtime_error(self):
+    def test_when_feature_sizes_differ_then_throws_runtime_error(self):
         # Arrange
         X = np.array([[1, 2, 3], [4, 5, 6]])
-        Y = np.array([[1, 2, 3]])
+        Y = np.array([[1, 2], [3, 4]])
 
         # Act & Assert
         with self.assertRaises(RuntimeError):
@@ -54,10 +54,10 @@ class TestLinearKernel(unittest.TestCase):
 
 class TestPolynomialKernel(unittest.TestCase):
 
-    def test_when_sizes_differ_then_throws_runtime_error(self):
+    def test_when_feature_sizes_differ_then_throws_runtime_error(self):
         # Arrange
         X = np.array([[1, 2, 3], [4, 5, 6]])
-        Y = np.array([[1, 2, 3]])
+        Y = np.array([[1, 2], [3, 4]])
 
         # Act & Assert
         with self.assertRaises(RuntimeError):
@@ -109,10 +109,10 @@ class TestPolynomialKernel(unittest.TestCase):
 
 class TestRBFKernel(unittest.TestCase):
 
-    def test_when_sizes_differ_then_throws_runtime_error(self):
+    def test_when_feature_sizes_differ_then_throws_runtime_error(self):
         # Arrange
         X = np.array([[1, 2, 3], [4, 5, 6]])
-        Y = np.array([[1, 2, 3]])
+        Y = np.array([[1, 2], [3, 4]])
 
         # Act & Assert
         with self.assertRaises(RuntimeError):
@@ -156,10 +156,10 @@ class TestRBFKernel(unittest.TestCase):
 
 class TestSigmoidKernel(unittest.TestCase):
 
-    def test_when_sizes_differ_then_throws_runtime_error(self):
+    def test_when_feature_sizes_differ_then_throws_runtime_error(self):
         # Arrange
         X = np.array([[1, 2, 3], [4, 5, 6]])
-        Y = np.array([[1, 2, 3]])
+        Y = np.array([[1, 2], [3, 4]])
 
         # Act & Assert
         with self.assertRaises(RuntimeError):
