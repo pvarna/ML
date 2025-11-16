@@ -10,7 +10,7 @@ RANDOM_STATE = 21
 TEST_SIZE = 0.2
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
+from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, classification_report
 
 def create_dataset(path):
     with open(path, "r") as f:
@@ -46,6 +46,8 @@ def main():
     print(f"Baseline Recall: {baseline_recall:.4f}")
     print("Confusion Matrix (rows=true, cols=pred):")
     print(cm)
+    print("Classification Report:")
+    print(classification_report(y_test, y_pred_baseline, zero_division=0))
 
 if __name__ == '__main__':
     main()
