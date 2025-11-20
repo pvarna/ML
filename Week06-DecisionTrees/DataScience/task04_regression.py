@@ -5,6 +5,8 @@ from sklearn.metrics import root_mean_squared_error, r2_score
 from sklearn.linear_model import Lasso, LinearRegression, Ridge
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import VotingRegressor
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.pipeline import Pipeline
 import matplotlib.pyplot as plt
 
 DATASET_PATH = os.path.join("..", "..", "DATA", "auto.csv")
@@ -39,15 +41,20 @@ def main():
     
     estimators = [
         ("lr", LinearRegression()),
-        ("ridge", Ridge()),
-        ("lasso", Lasso(0.01)),
-        ("dt", DecisionTreeRegressor()),
+        ("ridge", Ridge(random_state=RANDOM_STATE)),
+        ("lasso", Lasso(0.01, random_state=RANDOM_STATE)),
+        ("dt", DecisionTreeRegressor(random_state=RANDOM_STATE)),
     ]
 
     regressor = VotingRegressor(estimators=estimators)
-    regressor.fit(X_train, y_train)
 
-    y_pred = regressor.predict(X_test)
+    pipeline = Pipeline([
+        ("scaler", MinMaxScaler()),
+        ('regressor', regressor)
+    ])
+
+    pipeline.fit(X_train, y_train)
+    y_pred = pipeline.predict(X_test)
 
     rmse = root_mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
