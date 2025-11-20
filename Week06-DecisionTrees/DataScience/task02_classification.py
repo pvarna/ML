@@ -7,7 +7,6 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
 from sklearn.ensemble import VotingClassifier
 import matplotlib.pyplot as plt
 
