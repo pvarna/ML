@@ -70,7 +70,7 @@ def main():
     y = df[TARGET]
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE
+        X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
     )
 
     logreg_pipe = Pipeline([

@@ -59,7 +59,9 @@ class SVC:
 
         K = self._compute_kernel(X_np, X_np)
 
+        EPS = 0.00001
         G = (y_mapped[:, np.newaxis] * y_mapped[np.newaxis, :]) * K
+        G += EPS * np.eye(G.shape[0])
         G = np.asarray(G, dtype=float)
 
         a = np.ones(n_samples, dtype=float)
