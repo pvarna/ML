@@ -65,6 +65,8 @@ def main():
     plt.tight_layout()
     plt.show()
 
+    # model_report - https://docs.google.com/spreadsheets/d/17fGwqcFUEQjWSO7KPNfcfKeDkMbFH6Rx7ltU5hPyxi0/edit?usp=sharing
+
 
 if __name__ == '__main__':
     main()
