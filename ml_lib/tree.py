@@ -1,7 +1,7 @@
 import pandas as pd
 from typing import Optional
 
-from stats import gini_index, entropy
+from .stats import gini_index, entropy
 
 
 class Node:
@@ -25,7 +25,7 @@ class Node:
 class DecisionTreeClassifier:
 
     def __init__(self, min_samples_leaf: int, min_samples_split: int,
-                 max_depth: int, criterion: str):
+                 max_depth: Optional[int] = None, criterion: str = "gini"):
         if criterion not in ['gini', 'entropy']:
             raise RuntimeError("Unsupported criterion type")
 
@@ -85,7 +85,7 @@ class DecisionTreeClassifier:
         if num_samples < self.min_samples_split:
             return Node(value=self._majority_class(y))
 
-        if self.max_depth <= depth:
+        if self.max_depth is not None and self.max_depth <= depth:
             return Node(value=self._majority_class(y))
 
         if len(y.unique()) == 1:
