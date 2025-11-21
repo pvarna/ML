@@ -8,3 +8,11 @@ def sigmoid(x: ArrayLike) -> np.ndarray:
 def softmax(x: ArrayLike) -> np.ndarray:
     exp_x = np.exp(x)
     return exp_x / np.sum(exp_x, axis=1, keepdims=True)
+
+EPS = 1e-15
+
+def gini_index(ps: np.ndarray) -> float:
+    return 1 - np.sum(ps ** 2)
+
+def entropy(ps: np.ndarray) -> float:
+    return np.sum(-ps * np.log2(ps + EPS))
