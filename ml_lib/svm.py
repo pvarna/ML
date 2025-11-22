@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from .kernels import linear, polynomial, rbf, sigmoid
+from kernels import linear, polynomial, rbf, sigmoid
 import quadprog
 
 
@@ -59,7 +59,7 @@ class SVC:
 
         K = self._compute_kernel(X_np, X_np)
 
-        EPS = 0.00001
+        EPS = 0.00001 if self.kernel == "sigmoid" else 0.5
         G = (y_mapped[:, np.newaxis] * y_mapped[np.newaxis, :]) * K
         G += EPS * np.eye(G.shape[0])
         G = np.asarray(G, dtype=float)
@@ -89,15 +89,15 @@ class SVC:
 
         self.alphas_ = alphas
 
-        eps = 1e-5
-        support_vector_indices = np.where(alphas > eps)[0]
+        EPS = 1e-5
+        support_vector_indices = np.where(alphas > EPS)[0]
 
         self.support_ = support_vector_indices
         self.support_vectors_ = X_np[support_vector_indices]
         self._support_alphas = alphas[support_vector_indices]
         self._support_y = y_mapped[support_vector_indices]
 
-        edge_mask = (alphas > eps) & (alphas < self.C - eps)
+        edge_mask = (alphas > EPS) & (alphas < self.C - EPS)
         edge_indices = np.where(edge_mask)[0]
 
         if len(edge_indices) == 0:
