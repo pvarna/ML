@@ -46,7 +46,7 @@ class TestDecisionTreeClassifierInit(unittest.TestCase):
         # Act
         actual = classifier._impurity(y)
 
-        # Assert (gini for distribution [2 zeros, 3 ones, 1 zero] => counts [3,3] -> p=[0.5,0.5] -> 0.5)
+        # Assert
         expected = 0.5
         self.assertAlmostEqual(actual, expected, places=7)
 
