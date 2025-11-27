@@ -16,3 +16,5 @@ PyQt6
 openpyxl
 pytest
 quadprog
+xgboost
+catboost
