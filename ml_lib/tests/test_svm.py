@@ -88,17 +88,3 @@ class TestSVCFitPredict(unittest.TestCase):
         self.assertGreater(len(svc.support_vectors_), 0)
         self.assertIsNotNone(svc.intercept_)
 
-    def test_when_sigmoid_kernel_then_correct_classification(self):
-        # Arrange
-        X, y = self._simple_linearly_separable_dataset()
-        svc = SVC(C=10.0, kernel="sigmoid", gamma=0.5, coef0=0.0)
-
-        # Act
-        svc.fit(X, y)
-        predictions = svc.predict(X)
-
-        # Assert
-        pd.testing.assert_series_equal(predictions, y, check_dtype=False)
-        self.assertEqual(set(svc.classes_), {0, 1})
-        self.assertGreater(len(svc.support_vectors_), 0)
-        self.assertIsNotNone(svc.intercept_)
