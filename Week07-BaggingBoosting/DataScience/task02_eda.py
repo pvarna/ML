@@ -11,7 +11,6 @@ DATASET_PATH = os.path.join("..", "..", "DATA", "bike_sharing.csv")
 OUTPUT_XLSX = "data_audit.xlsx"
 ASSETS_DIR = "assets"
 TARGET = "count"
-# FEATURE_TO_ENCODE = "origin"
 
 
 def build_summary(df):
