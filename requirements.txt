@@ -18,3 +18,4 @@ pytest
 quadprog
 xgboost
 catboost
+lightgbm
